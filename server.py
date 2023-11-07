@@ -1,63 +1,79 @@
+## SERVER ##
+
 import socket
-import threading
+from _thread import *
 
-# 서버의 IP 주소와 포트 번호를 설정합니다.
-HOST = '0.0.0.0'
-PORT = 12345  # 사용할 포트 번호
+client_sockets = []
 
-# 경기 생성자 클라이언트와 문자를 볼 수만 있는 클라이언트를 구분하기 위한 딕셔너리
-clients = {}
+## Server IP and Port ##
 
+HOST = socket.gethostbyname(socket.gethostname())
+PORT = 9999
 
-# 클라이언트와 메시지를 중계하는 함수
-def handle_client(client_socket):
-    global client_id
-    try:
-        # 클라이언트의 ID를 받아옵니다.
-        client_id = client_socket.recv(1024).decode()
-        print(f"Connected: {client_id}")
+########## processing in thread ##
+## new client, new thread ##
 
-        # 클라이언트를 저장하고, 메시지 중계를 위한 루프를 시작합니다.
-        clients[client_id] = client_socket
-        while True:
-            message = client_socket.recv(1024).decode()
-            if message:
-                # 클라이언트가 종료를 요청한 경우
-                if message == "exit":
-                    client_socket.close()
-                    del clients[client_id]
-                    print(f"Disconnected: {client_id}")
-                    break
+def threaded(client_socket, addr):
+    print('>> Connected by :', addr[0], ':', addr[1])
 
-                # 메시지를 모든 다른 클라이언트에게 중계합니다.
-                for client_id, socket in clients.items():
-                    if client_id != sender_id:
-                        socket.send(message.encode())
-    except Exception as e:
-        print(f"Error: {str(e)}")
-        client_socket.close()
-        del clients[client_id]
+    ## process until client disconnect ##
+    while True:
+        try:
+            ## send client if data recieved(echo) ##
+            data = client_socket.recv(1024)
 
+            if not data:
+                print('>> Disconnected by ' + addr[0], ':', addr[1])
+                break
 
+            client_type = data.decode().split(':')[0]  # 클라이언트 유형을 ':'로 구분
+            message = data.decode().split(':', 1)[1]  # ':'로 구분된 첫 번째 ':' 이후의 내용은 메시지
 
-# 서버 소켓을 생성하고 클라이언트의 연결을 기다립니다.
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind((HOST, PORT))
-server.listen(5)
-print(f"Listening on {HOST}:{PORT}")
+            if client_type == 'viewer':
+                # 중계 메시지를 입력하는 클라이언트의 경우 다른 중계 클라이언트에게 메시지 전달
+                for client in client_sockets:
+                    if client != client_socket and 'relay' in client.recv(1024).decode():
+                        client.send(message.encode())
+            elif client_type == 'relay':
+                # 그냥 메시지를 받아보는 클라이언트의 경우 메시지 출력
+                print('>> Received from ' + addr[0], ':', addr[1], message)
 
-while True:
-    client_socket, addr = server.accept()
-    # 클라이언트 ID를 받아옵니다. 경기 생성자인지 여부를 확인할 수 있도록 구분합니다.
-    client_id = client_socket.recv(1024).decode()
+            ## chat to client connecting client ##
+            ## chat to client connecting client except person sending message ##
+            for client in client_sockets:
+                if client != client_socket:
+                    client.send(data)
+       
+        except ConnectionResetError as e:
+            print('>> Disconnected by ' + addr[0], ':', addr[1])
+            break
+   
+    if client_socket in client_sockets:
+        client_sockets.remove(client_socket)
+        print('remove client list : ', len(client_sockets))
 
-    # 경기 생성자인 경우
-    if client_id == "creator":
-        creator_client = client_socket
-        print("Creator connected")
-    # 일반 클라이언트인 경우
-    if client_id == "viewer":
-        # 클라이언트를 볼 수만 있는 클라이언트로 구분합니다.
-        print("Viewer connected")
-        # 메시지 중계를 위한 스레드를 시작합니다.
-        threading.Thread(target = handle_client, args = (client_socket, client_id)).start()
+    client_socket.close()
+
+############# Create Socket and Bind ##
+
+print('>> Server Start with ip :', HOST)
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+server_socket.bind((HOST, PORT))
+server_socket.listen()
+
+############# Client Socket Accept ##
+
+try:
+    while True:
+        print('>> Wait')
+
+        client_socket, addr = server_socket.accept()
+        client_sockets.append(client_socket)
+        start_new_thread(threaded, (client_socket, addr))
+        print("참가자 수 : ", len(client_sockets))
+except Exception as e:
+    print('에러 : ', e)
+
+finally:
+    server_socket.close()
