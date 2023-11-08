@@ -7,7 +7,7 @@ import pymysql
 ## 호스트명, 로그인, 암호, 접속할 DB 등 지정
 host = "localhost"
 user = "root"
-password = "Abcd123@" 
+password = # 각자 입력 
 db = "project_cn"
 con = pymysql.connect(host=host, user=user, password=password, 
                        db=db, charset='utf8', # 한글처리 (charset="utf-8")
