@@ -8,7 +8,7 @@ from db_connect import con, cur
 
 # title = input() # front에서 받을 값
 
-def update_data(title):
+def update_game(title):
     try:
         sql = """UPDATE GAME_INFO
             SET game_progress = 0
