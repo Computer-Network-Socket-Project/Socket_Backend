@@ -14,7 +14,7 @@ def update_half(title):
             WHERE game_name='{title}';
             """.format(title=title)
         cur.execute(sql)
-
         con.commit()
+        return "Data update successfully."
     except Exception as e:
         return f"Error: {str(e)}"

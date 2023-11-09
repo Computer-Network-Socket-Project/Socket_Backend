@@ -33,6 +33,8 @@ def process_data(title, team1, team2):
 	except Exception as e:
 		return f"Error: {str(e)}"
 
+# process_data('title3', 'team1', 'team2')
+
 # # 값이 잘 들어갔나 확인하는 코드(확인용이므로 주석처리 또는 삭제할 예정)
 # sql = "SELECT * FROM GAME_INFO;"
 # cur.execute(sql)
