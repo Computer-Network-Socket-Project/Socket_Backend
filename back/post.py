@@ -20,12 +20,11 @@ from db_connect import con, cur
 # cur.execute(sql)
 # con.commit()
 
-def process_data(title, team1, team2):
+def process_data(title, team1, team2, sport_type):
 	try:
-		post_sql = """INSERT INTO GAME_INFO (game_name, sport_type, team_name, game_progress) VALUES 
-			('{title}', 0, '{team1}', 1),
-			('{title}', 0, '{team2}', 1);
-			""".format(title=title, team1=team1, team2=team2)
+		post_sql = """INSERT INTO GAME_INFO (game_name, team1_name, team2_name, game_progress, sport_type) 
+				VALUE ('{title}', '{team1}', '{team2}', 1, {sport_type});
+			""".format(title=title, team1=team1, team2=team2, sport_type = sport_type)
 		cur.execute(post_sql)
 
 		con.commit()

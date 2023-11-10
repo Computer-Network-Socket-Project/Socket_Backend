@@ -1,5 +1,3 @@
-* 수정 필요
-
 - db_close : mysql 연결을 취소하는 코드가 있는 파일
 - db_connect : pymysql을 사용해서 python과 mysql을 연결하는 코드가 있는 파일
 - front_connect : flask를 사용해서 json파일로 웹으로 보여주며 front에게 값을 전달하기 위한 파일

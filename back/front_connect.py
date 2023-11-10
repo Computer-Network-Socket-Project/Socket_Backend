@@ -19,7 +19,7 @@ app = Flask(__name__)
 @app.route("/test1", methods=["GET"])
 def home():
       result = select_data()
-      return result
+      return jsonify(result)
 
 # HOME에서 특정 게임을 선택한 후 보여지는 중계 화면에서 유저가 봐야하는 정보 부분
 @app.route("/test2/<title>",methods=["GET"])
@@ -37,7 +37,12 @@ def post():
       title = data["game_name"]
       team1 = data["team1"]
       team2 = data["team2"]
-      result = process_data(title,team1,team2)
+      sport_type = data["sport_type"]
+      if sport_type == "축구":
+            sport_type = 0
+      else:
+            sport_type = 1
+      result = process_data(title,team1,team2,sport_type)
       return result
 
 
@@ -68,30 +73,15 @@ def like():
       result = update_like(title)
       return result
 
-# 점수 수정시 작동하도록야함
+# 점수 수정시 작동하도록
 @app.route("/test7/<title>", methods=["POST"])
 def score(title):
-      rows = [row
-                for row in select_data()
-                if row['game_name']==title]
-      team1 = rows[0]["team_name"]
-      score1 = rows[0]["team_score"]
-      team2 = rows[1]["team_name"]
-      score2 = rows[1]["team_score"]
-      
       data = request.get_json()
-      now_score1 = data["team1_score"]
-      now_score2 = data["team2_score"]
-      
-      result1 = "No Change"
-      result2 = "No Change"
-      if score1 != now_score1:
-             result1 = update_score(title,team1,now_score1)
-      if score2 != now_score2:
-             result2 = update_score(title,team2,now_score2)
-      
-      return {"result1":result1, "result2":result2}
+      score1 = data["team1_score"]
+      score2 = data["team2_score"]
+      result = update_score(title, score1, score2)
+      return result
 
 
 if __name__ == '__main__':
-    app.run(host="localhost", port=5050, debug=True)
+    app.run(host="localhost", port=9999, debug=True)

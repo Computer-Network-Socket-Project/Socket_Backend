@@ -4,7 +4,6 @@
 
 # 점수 관련 코드
 from db_connect import cur,con
-from select_data import select_data
 
 # def team_score(title):
 #     try:
@@ -18,14 +17,16 @@ from select_data import select_data
 
 # print(team_score('title1'))
 
-def update_score(title, team, score):
+def update_score(title, score1, score2):
     try:
         sql = """UPDATE GAME_INFO
-        SET team_score = {score}
-        WHERE game_name='{title}' and team_name='{team}';
-        """.format(title=title,team=team, score=score)
+        SET team1_score = {score1} AND team2_score = {score2}
+        WHERE game_name='{title}';
+        """.format(title=title, score1=score1, score2=score2)
         cur.execute(sql)
         con.commit()
         return "Data update successfully."
     except Exception as e:
         return f"Error: {str(e)}"
+    
+update_score('test1', 1, 0)
