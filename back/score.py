@@ -20,7 +20,7 @@ from db_connect import cur,con
 def update_score(title, score1, score2):
     try:
         sql = """UPDATE GAME_INFO
-        SET team1_score = {score1} AND team2_score = {score2}
+        SET team1_score = {score1}, team2_score = {score2}
         WHERE game_name='{title}';
         """.format(title=title, score1=score1, score2=score2)
         cur.execute(sql)
@@ -29,4 +29,4 @@ def update_score(title, score1, score2):
     except Exception as e:
         return f"Error: {str(e)}"
     
-update_score('test1', 1, 0)
+print(update_score('test3', 1, 3))
