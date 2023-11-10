@@ -26,15 +26,15 @@ def threaded(client_socket, addr):
                 print('>> Disconnected by ' + addr[0], ':', addr[1])
                 break
 
-            client_type = data.decode().split(':')[0]  # 클라이언트 유형을 ':'로 구분
+            client_types = {True: 1, False: 0}  # 1 :방 생성자 , 0: 경기 관람
             message = data.decode().split(':', 1)[1]  # ':'로 구분된 첫 번째 ':' 이후의 내용은 메시지
 
-            if client_type == 'viewer':
+            if client_types[client_type]:
                 # 중계 메시지를 입력하는 클라이언트의 경우 다른 중계 클라이언트에게 메시지 전달
                 for client in client_sockets:
                     if client != client_socket and 'relay' in client.recv(1024).decode():
                         client.send(message.encode())
-            elif client_type == 'relay':
+            elif not client_types[client_type]:
                 # 그냥 메시지를 받아보는 클라이언트의 경우 메시지 출력
                 print('>> Received from ' + addr[0], ':', addr[1], message)
 
@@ -43,11 +43,11 @@ def threaded(client_socket, addr):
             for client in client_sockets:
                 if client != client_socket:
                     client.send(data)
-       
+
         except ConnectionResetError as e:
             print('>> Disconnected by ' + addr[0], ':', addr[1])
             break
-   
+
     if client_socket in client_sockets:
         client_sockets.remove(client_socket)
         print('remove client list : ', len(client_sockets))
@@ -71,7 +71,7 @@ try:
         client_socket, addr = server_socket.accept()
         client_sockets.append(client_socket)
         start_new_thread(threaded, (client_socket, addr))
-        print("참가자 수 : ", len(client_sockets))
+        print("참가자 수 : ", len(client_sockets)) #클라이언트 수 확
 except Exception as e:
     print('에러 : ', e)
 
