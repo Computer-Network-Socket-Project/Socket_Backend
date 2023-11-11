@@ -13,3 +13,5 @@ def select_data():
     return rows
 
 # print(rows) # 값이 잘 들어갔는지 확인하는 코드
+
+"game_datetime","game_half","game_progress","game_name","great_num","id","sport_type","team1_name","team1_score","team2_name","team2_score"

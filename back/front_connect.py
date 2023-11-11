@@ -7,17 +7,21 @@
 from flask import Flask, jsonify, request
 
 from select_data import select_data
-from post import process_data
-from game_over import update_game
-from half import update_half
+from insert_data import insert_game
+from update_data import update_data
 from like import update_like
-from score import update_score
+
 
 app = Flask(__name__)
 
 # HOME화면 모든 게임 정보 보여지는 부분
-@app.route("/test1", methods=["GET"])
+@app.route("/test1", methods=["GET", "POST"])
 def home():
+      # 좋아요 버튼 클릭시 작동하도록
+      if request.method == "POST":
+            data = request.get_json()
+            title = data["game_name"]
+            update_like(title)
       result = select_data()
       return jsonify(result)
 
@@ -30,57 +34,29 @@ def relay(title):
                 if row['game_name']==title]
       return jsonify(result)
 
-# HOME에서 +버튼을 누른 후 새로운 게시글을 등록할 때 보여지는 부분
-@app.route("/test3",methods=["POST"])
+
+@app.route("/test3",methods=["GET", "POST"])
 def post():
-      data = request.get_json()
-      title = data["game_name"]
-      team1 = data["team1"]
-      team2 = data["team2"]
-      sport_type = data["sport_type"]
-      if sport_type == "축구":
-            sport_type = 0
+      # HOME에서 +버튼을 누른 후 새로운 게시글을 등록할 때 보여지는 부분
+      if request.method == "GET":
+            title = "새로운 게임이 진행할 예정입니다"
+            result = insert_game(title)
+            return result
+      # data update : update 버튼 혹은 뒤로가기 버튼을 누를 경우 발생함
       else:
-            sport_type = 1
-      result = process_data(title,team1,team2,sport_type)
-      return result
-
-
-# 게임 종료 버튼 누름 (**의논 필요**)
-## 게임 정보도 불러오도록 GET방식도 추가하기
-## => POST만 사용해도 괜찮을 것 같음 
-## (: 종료시에는 game_name만 입력하고 종료버튼 누르면 끝이므로)
-@app.route("/test4", methods=["POST"])
-def game_over():
-      data = request.get_json()
-      title = data["game_name"]
-      result = update_game(title)
-      return result
-
-# 전반전 -> 후반전 (**의논 필요** : 위와 같은 이유)
-@app.route("/test5", methods=["POST"])
-def half():
-      data = request.get_json()
-      title = data["game_name"]
-      result = update_half(title)
-      return result
-
-# 좋아요 버튼 클릭시 작동하도록
-@app.route("/test6", methods=["Post"])
-def like():
-      data = request.get_json()
-      title = data["game_name"]
-      result = update_like(title)
-      return result
-
-# 점수 수정시 작동하도록
-@app.route("/test7/<title>", methods=["POST"])
-def score(title):
-      data = request.get_json()
-      score1 = data["team1_score"]
-      score2 = data["team2_score"]
-      result = update_score(title, score1, score2)
-      return result
+            data = request.get_json()
+            game_name = data["game_name"]
+            team1_name = data["team1_name"]
+            team1_score = data["team1_score"]
+            team2_name = data["team2_name"]
+            team2_score = data["team2_score"]
+            sport_type = data["sport_type"]
+            game_half = data["game_half"]
+            game_progress = data["game_progress"]
+            result = update_data(game_name, team1_name, team1_score, 
+                              team2_name, team2_score,sport_type,
+                              game_half,game_progress)
+            return result
 
 
 if __name__ == '__main__':
