@@ -6,7 +6,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 
-# MySQL 데이터베이스 연결 설정
+# 각자 MySQL 데이터베이스에 맞게 연결 설정
 config = {
     'user': 'root',
     'password': '',
@@ -19,6 +19,7 @@ config = {
 def index():
     return render_template('index.html')
 
+#chat, data_chat db에서 받기
 @app.route('/chat', methods=['GET', 'POST'])
 def chat():
     cnx = mysql.connector.connect(**config)
@@ -54,5 +55,6 @@ def handle_message(message):
     print('received message: ' + message)
     emit('response', 'This is a response')
 
+# http 서버 확인
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=8080, allow_unsafe_werkzeug=True)
