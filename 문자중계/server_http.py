@@ -8,10 +8,10 @@ socketio = SocketIO(app)
 
 # MySQL 데이터베이스 연결 설정
 config = {
-    'user': 'root',
-    'password': 'Odmc7721!!',
+    'user': 
+    'password':
     'host': 'localhost',
-    'database': 'project_cn',
+    'database':
     'raise_on_warnings': True
 }
 
