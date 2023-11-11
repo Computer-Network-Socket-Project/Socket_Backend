@@ -35,6 +35,11 @@ def threaded(client_socket, addr):
                 for client in client_sockets:
                     if client != client_socket and 'relay' in client.recv(1024).decode():
                         client.send(message.encode())
+
+                # 채팅 메시지와 시간을 데이터베이스에 저장
+                sql = "INSERT INTO chatting (chat, chat_datetime) VALUES (%s, NOW())"
+                cursor.execute(sql, (message,))  # 쿼리 실행
+                db.commit()  # 변경 사항 커밋
             else:
                 # 그냥 메시지를 받아보는 클라이언트의 경우 메시지 출력
                 print('>> Received from ' + addr[0], ':', addr[1], message)
