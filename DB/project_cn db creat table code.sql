@@ -17,10 +17,10 @@ CREATE TABLE ADMIN_INFO (
 CREATE TABLE GAME_INFO (
 	id			int auto_increment	primary key,
 	game_name	varchar(20)	NOT NULL unique,
-	team1_name	varchar(6)	NOT NULL,
+	team1_name	varchar(10),
 	team1_score	int	NOT NULL default 0,
-	team2_name	varchar(6)	NOT NULL,
-	team3_score	int	NOT NULL default 0,
+	team2_name	varchar(10),
+	team2_score	int	NOT NULL default 0,
 	great_num	int	NOT NULL	DEFAULT 0,
     sport_type	boolean	NOT NULL	DEFAULT 0,
     game_datetime	datetime	NOT NULL	DEFAULT NOW(),
