@@ -1,3 +1,5 @@
+# 확인용 client 폐기 예정
+
 import socket
 from _thread import *
 from datetime import datetime
