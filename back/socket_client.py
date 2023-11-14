@@ -3,8 +3,8 @@ import socket
 import json
 
 # 서버의 IP 주소와 포트 번호를 설정합니다.
-server_ip = 'localhost'
-server_port = 12345
+server_ip = '192.168.0.13'
+server_port = 8888
 
 # 소켓 객체를 생성합니다.
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
