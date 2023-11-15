@@ -49,7 +49,15 @@ while True:
 
             elif data["type"] == "creater" and data["action"] == "update_data":
                 # Creater로부터 받은 데이터를 DB에 업데이트합니다.
-                game_data = data["data"]
+                game_data = {}
+                game_data['game_name'] = data['game_name']
+                game_data['team1_name'] = data['team1_name']
+                game_data['team1_score'] = data['team1_score']
+                game_data['team2_name'] = data['team2_name']
+                game_data['team2_score'] = data['team2_score']
+                game_data['sport_type'] = data['sport_type']
+                game_data['game_half'] = data['game_half']
+                game_data['game_progress'] = data['game_progress']
                 print(game_data)
                 # DB 업데이트 코드
                 sql = """
@@ -72,18 +80,17 @@ while True:
                 cur.execute(sql)
                 con.commit()
 
-
-
-
-
+                print(data)
 
             elif data["type"] == "viewer" and data["action"] == "data_request":
                 # Viewer의 요청을 처리합니다.
                 # DB에서 필요한 데이터를 가져옵니다.
-                # DB 조회 코드 작성 필요
+                # 필요시 DB 조회 코드 작성 
 
                 # 가져온 데이터를 Viewer에게 보냅니다.
-                response = {"type": "server", "action": "send_data", "data": game_data}
+                print(game_data)
+                response = {"type": "server", "action": "send_data", 'game_name':game_data['game_name'], 'team1_name':game_data['team1_name'], 'team1_score':game_data['team1_score'], 'team2_name':game_data['team2_name'], 'team2_score':game_data['team2_score'], 'sport_type':game_data['sport_type'], 'game_half':game_data['game_half'], 'game_progress':game_data['game_progress']}
+                print(response)
                 response_json = json.dumps(response).encode('utf-8')
                 response_length = struct.pack('<I', len(response_json))
 
