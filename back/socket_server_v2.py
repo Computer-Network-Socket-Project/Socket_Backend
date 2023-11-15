@@ -2,19 +2,11 @@
 import socket
 import json
 import struct
+import threading
 from db_connect import con, cur
 
-server_ip = 'localhost'
-server_port = 8080
-
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind((server_ip, server_port))
-server_socket.listen()
-
-while True:
-    client_socket, addr = server_socket.accept()
+def handle_client(client_socket, addr):
     print(f'Connection from {addr} has been established!')
-
     while True:
         try:
             # 먼저 데이터의 길이를 읽습니다.
@@ -58,7 +50,7 @@ while True:
                 game_data['sport_type'] = data['sport_type']
                 game_data['game_half'] = data['game_half']
                 game_data['game_progress'] = data['game_progress']
-                print(game_data)
+                print(f'game_data={game_data}')
                 # DB 업데이트 코드
                 sql = """
                 UPDATE GAME_INFO AS t1
@@ -79,16 +71,22 @@ while True:
                         )
                 cur.execute(sql)
                 con.commit()
-
-                print(data)
+                print(f'data= {data}')
 
             elif data["type"] == "viewer" and data["action"] == "data_request":
                 # Viewer의 요청을 처리합니다.
                 # DB에서 필요한 데이터를 가져옵니다.
                 # 필요시 DB 조회 코드 작성 
+                sql = """
+                    SELECT * 
+                    FROM GAME_INFO 
+                    WHERE ID = (SELECT MAX(ID) FROM GAME_INFO);  
+                    """
+                cur.execute(sql)
+                game_data = cur.fetchone()
+                print(game_data)
 
                 # 가져온 데이터를 Viewer에게 보냅니다.
-                print(game_data)
                 response = {"type": "server", "action": "send_data", 'game_name':game_data['game_name'], 'team1_name':game_data['team1_name'], 'team1_score':game_data['team1_score'], 'team2_name':game_data['team2_name'], 'team2_score':game_data['team2_score'], 'sport_type':game_data['sport_type'], 'game_half':game_data['game_half'], 'game_progress':game_data['game_progress']}
                 print(response)
                 response_json = json.dumps(response).encode('utf-8')
@@ -99,5 +97,18 @@ while True:
 
         except ConnectionResetError:
             break
-
     client_socket.close()
+
+server_ip = 'localhost'
+server_port = 8080
+
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_socket.bind((server_ip, server_port))
+server_socket.listen()
+
+while True:
+    client_socket, addr = server_socket.accept()
+
+    client_thread = threading.Thread(target=handle_client, args=(client_socket, addr))
+    client_thread.start()
+
