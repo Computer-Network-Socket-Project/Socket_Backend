@@ -82,6 +82,12 @@ def handle_creater_request(data, client_socket):
         cur.execute(sql)
         con.commit()
         print(f"massage_data = {data}")
+
+        response = {"type": "server", "action": "send_message", 'game_name': data['game_name'], 'message':data['message']}
+        print(response)
+        response_json = json.dumps(response).encode('utf-8')
+        response_length = struct.pack('<I', len(response_json))
+
         # 모든 viewer에게 데이터 전송
         for message_socket in message_sockets:
             message_socket.send(response_length)
@@ -115,7 +121,7 @@ def handle_viewer_request(data, client_socket):
         client_socket.send(response_json)
         viewer_sockets.append(client_socket)
         # data['viewer_on'] = 0
-        
+
     # 문자중계 서비스 데이터 받는 코드
     elif data["action"] == "message_request":
         print("viewer message 받아요")
@@ -133,7 +139,7 @@ def handle_viewer_request(data, client_socket):
         message_data = cur.fetchall()
         print(message_data)
         # 가져온 데이터를 Viewer에게 보냅니다.
-        response = {"type": "server", "action": "send_message",}
+        response = {"type": "server", "action": "send_message", 'game_name': data['game_name'], 'message':data['message']}
         print(response)
         response_json = json.dumps(response).encode('utf-8')
         response_length = struct.pack('<I', len(response_json))
