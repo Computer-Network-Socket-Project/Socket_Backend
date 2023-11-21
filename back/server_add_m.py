@@ -183,7 +183,7 @@ def handle_client(client_socket, addr):
         elif data["type"] == "viewer":
             handle_viewer_request(data, client_socket)
 
-server_ip = 'localhost'
+server_ip = '192.168.0.7'
 server_port = 8888
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

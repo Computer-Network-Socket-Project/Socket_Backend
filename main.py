@@ -1,44 +1,34 @@
 import socket
+from _thread import *
+from datetime import datetime
 
-host = '192.168.44.195'
-port = 9999
+HOST = '192.168.0.8'  # server IP 수시로 cheak
+PORT = 8889
 
-server_sock = socket.socket(socket.AF_INET)
-server_sock.bind((host, port))
-server_sock.listen(1)
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client_socket.connect((HOST, PORT))
+
+# 클라이언트 유형을 입력 받음
+client_type = input("Enter client type ('relay' or 'viewer'): ")
+
+
+def recv_data(client_socket):
+    while True:
+        data = client_socket.recv(1024)
+        print("Received:", repr(data.decode()))
+
+
+start_new_thread(recv_data, (client_socket,))
+print('>> Connect Server')
 
 while True:
-    print("기다리는 중")
-    client_sock, addr = server_sock.accept()
+    message = input()
 
-    print('Connected by', addr)
-    data = client_sock.recv(1024)
-    data = data.decode()
-    print(data)
+    if message == 'quit':  # 생성 클라이언트가 문자 종료 중계하고 싶을 때
+        break
 
-    while True:
-        # 클라이언트에서 받을 문자열의 길이
-        data = client_sock.recv(4)
-        length = int.from_bytes(data, "little")
-        # 클라이언트에서 문자열 받기
-        msg = client_sock.recv(length)
+    # 클라이언트 유형과 메시지를 서버로 전달
+    message_with_type = f"{client_type}:{message} ({datetime.now().strftime('+ %Y-%m-%d %H:%M:%S')})"
+    client_socket.send(message_with_type.encode())
 
-        # data를 더 이상 받을 수 없을 때
-        if len(data) <= 0:
-            break
-
-        msg = msg.decode()
-        print(msg)
-
-        msg = "eco: " + msg
-        data = msg.encode()
-
-        length = len(data)
-        # 클라이언트에 문자열 길이 보내기
-        client_sock.sendall(length.to_bytes(4, byteorder="little"))
-        # 클라이언트에 문자열 보내기
-        client_sock.sendall(data)
-
-    client_sock.close()
-
-server_sock.close()
+client_socket.close()
