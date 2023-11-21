@@ -148,6 +148,11 @@ def handle_viewer_request(data, client_socket):
         client_socket.send(response_json)
         message_sockets.append(client_socket)
 
+    elif data["action"] == "viewer_killing":
+        print("viewer 잘가요")
+        viewer_sockets.remove(client_socket)
+        print(len(viewer_sockets))
+
 
 def handle_client(client_socket, addr):
     global isTrue

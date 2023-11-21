@@ -62,6 +62,7 @@ def handle_creater_request(data, client_socket):
         print(response)
         response_json = json.dumps(response).encode('utf-8')
         response_length = struct.pack('<I', len(response_json))
+        print(len(viewer_sockets))
 
         # 모든 viewer에게 데이터 전송
         for viewer_socket in viewer_sockets:
@@ -71,6 +72,7 @@ def handle_creater_request(data, client_socket):
 def handle_viewer_request(data, client_socket):
     if data["action"] == "data_request":
         print("viewer 받아요")
+        print(len(viewer_sockets))
         # Viewer의 요청을 처리합니다.
         # DB에서 필요한 데이터를 가져옵니다.
         # 필요시 DB 조회 코드 작성
@@ -97,6 +99,10 @@ def handle_viewer_request(data, client_socket):
         client_socket.send(response_json)
         viewer_sockets.append(client_socket)
         # data['viewer_on'] = 0
+    elif data["action"] == "viewer_killing":
+        print("viewer 잘가요")
+        viewer_sockets.remove(client_socket)
+        print(len(viewer_sockets))
 
 def handle_client(client_socket, addr):
     global isTrue
